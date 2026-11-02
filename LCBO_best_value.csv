@@ -1,32 +1,45 @@
 ,,Name,Rating,Price,Quantity
-Belgian,1,Chimay Blue Cap,4.1,4.95,1.0
-Belgian,2,St. Bernardus Abt 12,4.24,5.85,1.0
-Belgian,3,Rochefort 8,4.1,5.3,1.0
-Bock,1,Einbecker 1378,3.51,2.75,1.0
-Cider,1,Kw Craft Cider Wild Cherry,3.74,3.6,1.0
-Cider,2,Brickworks Ciderhouse Stadium Island Peach Cider,3.61,3.6,1.0
-Cider,3,No Boats On Sunday Peach Cider,3.62,3.85,1.0
 IPA,1,Great Lakes Brewery Karma Citra IPA,4.06,3.55,1.0
 IPA,2,Great Lakes Brewery Octopus Wants To Fight IPA,3.95,3.25,1.0
 IPA,3,Flying Monkeys Psychedelic Puzzle Factory DIPA,4.2,4.35,1.0
+IPA,4,Collective Arts Life in the Clouds,3.92,3.6,1.0
+IPA,5,Great Lakes Brewery Sultana Solero IPA,3.92,3.6,1.0
+IPA,6,Collective Arts Ransack The Universe IPA,3.93,3.85,1.0
 Lager,1,Beau's Lug Lite,3.74,2.95,1.0
-Lager,2,Creemore Springs Premium Lager,3.54,17.5,6.0
-Lager,3,Hofbrau Dunkel,3.61,3.5,1.0
-Other,1,High Park Pumpkin Spice Latte,3.84,3.5,1.0
-Other,2,Muskoka Brewery Stein Sized Fest Bier,3.76,3.95,1.0
-Other,3,Forked River Coffee Porter,3.64,3.65,1.0
-Pale Ale,1,Sierra Nevada Pale Ale,3.79,3.6,1.0
-Pale Ale,2,Bellwoods Jutsu Pale Ale,3.98,4.5,1.0
-Pale Ale,3,Spearhead Hawaiian Style Pale Ale,3.68,3.15,1.0
+Lager,2,Muskoka Brewery Stein Sized Fest Bier,3.76,3.95,1.0
+Lager,3,Creemore Springs Premium Lager,3.54,17.5,6.0
+Lager,4,Hofbrau Dunkel,3.61,3.5,1.0
+Lager,5,Side Launch Dark Lager,3.59,3.45,1.0
+Lager,6,Hofbrau Original Lager,3.5,4.75,1.0
 Pilsner,1,Indie Ale House Marco Polo Italian Style Pilsner,3.65,3.9,1.0
 Pilsner,2,Henderson's FIGO Italian Pilsner,3.59,3.6,1.0
 Pilsner,3,Collective Arts Time Machine,3.57,22.95,6.0
+Pilsner,4,Bellwoods Bellweiser Pilsner,3.67,4.5,1.0
+Pilsner,5,Omnipollo Prize Pils,3.5,3.95,1.0
+Bock,1,Einbecker 1378,3.51,2.75,1.0
+Belgian,1,Chimay Blue Cap,4.1,4.95,1.0
+Belgian,2,St. Bernardus Abt 12,4.24,5.85,1.0
+Belgian,3,Rochefort 8,4.1,5.3,1.0
+Cider,1,Kw Craft Cider Wild Cherry,3.74,3.6,1.0
+Cider,2,Brickworks Ciderhouse Stadium Island Peach Cider,3.61,3.6,1.0
+Cider,3,No Boats On Sunday Peach Cider,3.62,3.85,1.0
+Golden & Blonde,1,Henderson x Rush Canadian Golden Ale,3.54,3.4,1.0
+Golden & Blonde,2,Beau's Lug Tread,3.52,19.95,6.0
+Golden & Blonde,3,5 Paddles Coconut Cream Pie,3.52,3.95,1.0
+Pale Ale,1,Sierra Nevada Pale Ale,3.79,3.6,1.0
+Pale Ale,2,Bellwoods Jutsu Pale Ale,3.98,4.5,1.0
+Pale Ale,3,Spearhead Hawaiian Style Pale Ale,3.68,3.15,1.0
+Radler & Fruit,1,Stiegl Grapefruit Radler,3.61,3.75,1.0
+Red & Brown,1,New Ontario Brewing - Tree Topper Red Ale,3.5,3.45,1.0
+Red & Brown,2,Innis & Gunn Original,3.53,3.75,1.0
 Sour,1,Collective Arts Jam up the Mash,3.93,3.95,1.0
 Sour,2,Collective Arts Guava Gose,3.78,3.95,1.0
 Sour,3,Collective Arts Sicilian Lemon Gose,3.93,4.85,1.0
-Stout,1,Guinness Draught,3.64,26.95,8.0
-Stout,2,Left Field Brewery Sweet Spot Marshmallow Stout,3.82,3.95,1.0
-Stout,3,Sinha Stout,3.77,3.75,1.0
+Stout & Porter,1,Guinness Draught,3.64,26.95,8.0
+Stout & Porter,2,Forked River Coffee Porter,3.64,3.65,1.0
+Stout & Porter,3,Left Field Brewery Sweet Spot Marshmallow Stout,3.82,3.95,1.0
 Wheat Beer,1,Spearhead Brewing Queen of Wheat,3.99,3.45,1.0
 Wheat Beer,2,Hacker Pschorr Weisse Bier,3.79,3.05,1.0
 Wheat Beer,3,Paulaner Hefe-Weissbier,3.81,3.5,1.0
+Other,1,High Park Pumpkin Spice Latte,3.84,3.5,1.0
+Other,2,Aecht Schlenkerla Rauchbier,3.76,5.3,1.0

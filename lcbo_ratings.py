@@ -3,16 +3,26 @@ import pandas as pd
 
 MIN_RATING = 3.5  # Don't recommend anything rated below this
 BASELINE_RATING = 3.0  # Rating treated as zero quality premium
-TOP_N = 3  # Recommendations per category
 
 
 def load_config():
-    with open("config.json") as config_file:
-        config = json.load(config_file)
-    return config["beer_dict"]
+    with open("config.json", encoding="utf-8") as config_file:
+        return json.load(config_file)
 
 
-def load_and_prepare_data(beer_dict):
+def categorize(style, category_prefixes):
+    """Category whose prefix is the longest match for the start of the style."""
+    if not isinstance(style, str):
+        return "Other"
+    best, best_len = "Other", 0
+    for category, prefixes in category_prefixes.items():
+        for prefix in prefixes:
+            if style.startswith(prefix) and len(prefix) > best_len:
+                best, best_len = category, len(prefix)
+    return best
+
+
+def load_and_prepare_data(category_prefixes):
     # Load the inventory data
     df = pd.read_csv("LCBO_store_inventory.csv")
 
@@ -49,27 +59,36 @@ def load_and_prepare_data(beer_dict):
     df["value"] = (df["Rating"] - BASELINE_RATING) / df["dollar_per_volume"]
 
     # Map beer types to categories
-    df["Category"] = df["Style"].apply(
-        lambda x: next((k for k, v in beer_dict.items() if x in v), "Other")
-    )
+    df["Category"] = df["Style"].apply(categorize, args=(category_prefixes,))
 
     return df
 
 
 def lcbo_ratings():
     """Process and rate the beers"""
-    beer_dict = load_config()
-    df = load_and_prepare_data(beer_dict)
+    config = load_config()
+    preferred = config.get("preferred_categories", [])
+    top_n = config.get("top_n", 3)
+    preferred_top_n = config.get("preferred_top_n", top_n)
+    df = load_and_prepare_data(config["category_prefixes"])
 
     # One row per beer: keep the format (single, 4-pack, 6-pack...) with the
     # best value so the same beer can't take several slots in a category
     df = df.sort_values(["value", "Rating"], ascending=False)
     df = df.drop_duplicates(subset="Name", keep="first")
 
-    # Top N per category, ranked 1..N
-    df = df.sort_values(["Category", "value", "Rating"], ascending=[True, False, False])
-    df = df.groupby("Category").head(TOP_N)
-    df["Rank"] = df.groupby("Category").cumcount() + 1
+    # Preferred categories first (in config order) and with more slots, then
+    # the rest alphabetically with Other last
+    def category_order(category):
+        if category in preferred:
+            return (0, preferred.index(category), category)
+        return (2 if category == "Other" else 1, 0, category)
+
+    df["_order"] = df["Category"].map(category_order)
+    df = df.sort_values(["_order", "value", "Rating"], ascending=[True, False, False])
+    df["Rank"] = df.groupby("Category", sort=False).cumcount() + 1
+    limit = df["Category"].map(lambda c: preferred_top_n if c in preferred else top_n)
+    df = df[df["Rank"] <= limit]
     df = df.set_index(["Category", "Rank"])
     df.index.names = [None, None]
 

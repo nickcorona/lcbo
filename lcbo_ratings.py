@@ -1,6 +1,10 @@
 import json
 import pandas as pd
 
+MIN_RATING = 3.5  # Don't recommend anything rated below this
+BASELINE_RATING = 3.0  # Rating treated as zero quality premium
+TOP_N = 3  # Recommendations per category
+
 
 def load_config():
     with open("config.json") as config_file:
@@ -36,14 +40,13 @@ def load_and_prepare_data(beer_dict):
     df["Rating"] = df["Rating"].str.split("/5").str[0].fillna(0).astype(float)
 
     # Apply a minimum rating threshold
-    min_rating = 3.5  # Adjust this to a value that you think is a fair minimum
-    df = df[df["Rating"] >= min_rating]
+    df = df[df["Rating"] >= MIN_RATING]
 
-    # Define value metric and calculate it
-    weight = (
-        2  # You can adjust this value to give more or less importance to the rating
-    )
-    df["value"] = (df["Rating"] ** weight) / df["dollar_per_volume"]
+    # Value = rating points above a baseline, per dollar per mL. Untappd ratings
+    # are compressed (median ~3.4, 95th pct ~4.0), so Rating**2 / price let a
+    # cheap 3.5 beat a 4.2 at a small premium. Measuring quality as distance
+    # above a "drinkable but nothing special" baseline makes rating gaps count.
+    df["value"] = (df["Rating"] - BASELINE_RATING) / df["dollar_per_volume"]
 
     # Map beer types to categories
     df["Category"] = df["Style"].apply(
@@ -58,17 +61,17 @@ def lcbo_ratings():
     beer_dict = load_config()
     df = load_and_prepare_data(beer_dict)
 
-    # Get the top 2 beers for each category
-    df = df.groupby("Category").apply(lambda x: x.nlargest(3, "value"))
+    # One row per beer: keep the format (single, 4-pack, 6-pack...) with the
+    # best value so the same beer can't take several slots in a category
+    df = df.sort_values(["value", "Rating"], ascending=False)
+    df = df.drop_duplicates(subset="Name", keep="first")
 
-    # Create a new multi-index where the second level is a rank within each category
-    df.index = pd.MultiIndex.from_tuples(
-        [
-            (category, rank + 1)
-            for category in df.index.get_level_values(0).unique()
-            for rank in range(df.loc[category].shape[0])
-        ]
-    )
+    # Top N per category, ranked 1..N
+    df = df.sort_values(["Category", "value", "Rating"], ascending=[True, False, False])
+    df = df.groupby("Category").head(TOP_N)
+    df["Rank"] = df.groupby("Category").cumcount() + 1
+    df = df.set_index(["Category", "Rank"])
+    df.index.names = [None, None]
 
     # Filter the DataFrame to include only the necessary columns
     df = df[["Name", "Rating", "Price", "Quantity"]]

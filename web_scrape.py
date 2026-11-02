@@ -1,6 +1,8 @@
 import configparser
 import os
+import platform
 import shutil
+import tempfile
 import time
 
 from selenium import webdriver
@@ -41,17 +43,24 @@ def web_scrape_lcbo_store_inventory():
             except StaleElementReferenceException:
                 continue
 
-    webdriver_service = Service(
-        "chromedriver-win64/chromedriver.exe",
-    )
+    # Bundled driver on Windows; elsewhere (CI) let Selenium find chromedriver
+    if platform.system() == "Windows":
+        webdriver_service = Service("chromedriver-win64/chromedriver.exe")
+    else:
+        webdriver_service = Service()
+
+    # Download into an empty temp dir so we can't pick up an unrelated CSV
+    download_dir = tempfile.mkdtemp()
 
     # Set Chrome options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_experimental_option(
         "prefs",
         {
-            "download.default_directory": os.getcwd(),
+            "download.default_directory": download_dir,
             "download.prompt_for_download": False,  # To auto download the file
             "download.directory_upgrade": True,
             "plugins.always_open_pdf_externally": True,  # To download pdf files
@@ -72,26 +81,18 @@ def web_scrape_lcbo_store_inventory():
     click_button(wait, SELECTORS["fourth_button"])
 
     # Wait for the download to complete
-    time.sleep(5)
+    csv_files = []
+    for _ in range(60):
+        csv_files = [f for f in os.listdir(download_dir) if f.endswith(".csv")]
+        if csv_files:
+            break
+        time.sleep(1)
+    if not csv_files:
+        driver.quit()
+        raise RuntimeError("Inventory CSV was not downloaded")
 
-    # Get the download directory and the file downloaded
-    download_dir = "."
-
-    # Get the most recently downloaded .csv file
-    file_name = max(
-        [
-            os.path.join(download_dir, f)
-            for f in os.listdir(download_dir)
-            if f.endswith(".csv")
-        ],
-        key=os.path.getctime,
-    )
-
-    # Destination file path
-    destination = os.path.join(download_dir, "LCBO_store_inventory.csv")
-
-    # Rename or overwrite the file
-    shutil.move(file_name, destination)
+    # Overwrite the inventory file
+    shutil.move(os.path.join(download_dir, csv_files[0]), "LCBO_store_inventory.csv")
 
     # Close the browser
     driver.quit()

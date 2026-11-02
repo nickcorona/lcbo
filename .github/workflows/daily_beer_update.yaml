@@ -2,36 +2,56 @@ name: Best value beer update
 
 on:
   schedule:
-    - cron: '0 4 * * *'  # This will run the script every day at midnight
-  workflow_dispatch:  # This is for manual runs
+    - cron: '0 4 * * *'  # Daily, around midnight Toronto
+  workflow_dispatch:  # Manual runs
+  push:
+    branches: [main]
+    paths:
+      - 'lcbo_ratings.py'
+      - 'web_scrape.py'
+      - 'main.py'
+      - 'config.json'
+      - 'config.ini'
+      - 'LCBO_store_inventory.csv'
+      - '.github/workflows/daily_beer_update.yaml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: beer-update
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11.4
+        python-version: '3.11'
 
+    # requirements.txt is a full Windows dev env (pywin32 etc.) and won't
+    # install on Linux, so install only what the pipeline needs.
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install pandas==2.0.0 numpy==1.24.2 selenium==4.27.1 python-dotenv==1.0.0
 
-    - name: Run script
-      run: python main.py  # Replace with your actual script
+    - name: Scrape and rank
+      run: python main.py
 
-    - name: Commit and push if it's changed
+    # Commits to main redeploy the GitHub Pages site. Pushes made with
+    # GITHUB_TOKEN don't retrigger this workflow, so there's no loop.
+    - name: Commit and push if changed
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add -A
-        message=$(git status --porcelain)
-        if [ -n "${message}" ]; then
-          git commit -m "Update data" -a
+        git config user.email "action@github.com"
+        git config user.name "GitHub Action"
+        git add LCBO_store_inventory.csv LCBO_best_value.csv
+        if ! git diff --cached --quiet; then
+          git commit -m "Update data"
           git push
         fi
